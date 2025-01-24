@@ -1,0 +1,14 @@
+# environment.yml
+name: diabetes-env
+channels:
+ - conda-forge
+ - defaults
+dependencies:
+ - python=3.9
+ - scikit-learn
+ - pandas
+  - numpy
+  - pip
+  - pip:
+    - azureml-defaults
+    - azureml-core

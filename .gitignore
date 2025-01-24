@@ -1,0 +1,115 @@
+# Python
+*.pyc
+__pycache__/
+*.pyo
+
+# any cloned repo
+manifests/
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+
+# Office files
+~$*
+
+# Data files
+*.csv
+*.json
+
+# Model files
+*.pkl
+*.h5
+*.hdf5
+
+# Visual Studio Code
+.vscode/
+.history/
+.nosync/
+
+# Logs
+*.log
+
+# Environment
+.env
+env/
+venv/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+
+# MacOS
+.DS_Store
+
+# PyInstaller
+# Usually these files are written by a python script from a template
+# before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+
+# My test database
+db.sqlite3
+
+# C extensions
+*.so
+
+# Translations
+*.mo
+*.pot
+
+# Static files
+staticfiles/
+
+# GitHub
+!.github
+!.gitignore
+
+# Yarn
+.yarn-integrity
+
+# dotenv
+*.env
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+# Thumbnails
+*-thumb.*
+
+# VSCode
+.vscode
+
+# Spyder project settings
+.spyderproject
+
+# Rope project settings
+.ropeproject
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target
+
+# any instructions document in pdf or any other format
+*.pdf
+
+Readme

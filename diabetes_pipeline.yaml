@@ -1,0 +1,112 @@
+# PIPELINE DEFINITION
+# Name: diabetes-prediction-pipeline
+# Description: Train and evaluate a diabetes prediction model
+components:
+  comp-evaluate-model:
+    executorLabel: exec-evaluate-model
+    inputDefinitions:
+      parameters:
+        model:
+          parameterType: STRING
+        test_data:
+          parameterType: STRING
+    outputDefinitions:
+      parameters:
+        metrics:
+          parameterType: STRING
+  comp-prepare-data:
+    executorLabel: exec-prepare-data
+    outputDefinitions:
+      parameters:
+        test:
+          parameterType: STRING
+        train:
+          parameterType: STRING
+  comp-train-model:
+    executorLabel: exec-train-model
+    inputDefinitions:
+      parameters:
+        train_data:
+          parameterType: STRING
+    outputDefinitions:
+      parameters:
+        model:
+          parameterType: STRING
+deploymentSpec:
+  executors:
+    exec-evaluate-model:
+      container:
+        args:
+        - --model
+        - '{{$.inputs.parameters[''model'']}}'
+        - --test-data
+        - '{{$.inputs.parameters[''test_data'']}}'
+        command:
+        - python
+        - evaluate.py
+        image: python:3.9
+    exec-prepare-data:
+      container:
+        command:
+        - python
+        - dataset_prep.py
+        image: python:3.9
+    exec-train-model:
+      container:
+        args:
+        - --data
+        - '{{$.inputs.parameters[''train_data'']}}'
+        command:
+        - python
+        - train.py
+        image: python:3.9
+pipelineInfo:
+  description: Train and evaluate a diabetes prediction model
+  name: diabetes-prediction-pipeline
+root:
+  dag:
+    tasks:
+      evaluate-model:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-evaluate-model
+        dependentTasks:
+        - prepare-data
+        - train-model
+        inputs:
+          parameters:
+            model:
+              taskOutputParameter:
+                outputParameterKey: model
+                producerTask: train-model
+            test_data:
+              taskOutputParameter:
+                outputParameterKey: test
+                producerTask: prepare-data
+        taskInfo:
+          name: evaluate-model
+      prepare-data:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-prepare-data
+        taskInfo:
+          name: prepare-data
+      train-model:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-train-model
+        dependentTasks:
+        - prepare-data
+        inputs:
+          parameters:
+            train_data:
+              taskOutputParameter:
+                outputParameterKey: train
+                producerTask: prepare-data
+        taskInfo:
+          name: train-model
+schemaVersion: 2.1.0
+sdkVersion: kfp-2.11.0

@@ -1,0 +1,9 @@
+pandas
+scikit-learn
+azureml-sdk
+azure-ai-ml
+kfp
+mlflow
+kfp-server-api
+tensorflow==2.9.0
+
