@@ -1,0 +1,113 @@
+# PIPELINE DEFINITION
+# Name: diabetes-prediction-pipeline
+# Description: Train and evaluate a diabetes prediction model
+components:
+  comp-evaluate-model:
+    executorLabel: exec-evaluate-model
+    inputDefinitions:
+      parameters:
+        model:
+          parameterType: STRING
+        test_data:
+          parameterType: STRING
+    outputDefinitions:
+      parameters:
+        metrics:
+          parameterType: STRING
+  comp-prepare-data:
+    executorLabel: exec-prepare-data
+    outputDefinitions:
+      parameters:
+        test:
+          parameterType: STRING
+        train:
+          parameterType: STRING
+  comp-train-model:
+    executorLabel: exec-train-model
+    inputDefinitions:
+      parameters:
+        train_data:
+          parameterType: STRING
+    outputDefinitions:
+      parameters:
+        model:
+          parameterType: STRING
+deploymentSpec:
+  executors:
+    exec-evaluate-model:
+      container:
+        command:
+        - sh
+        - -c
+        - "git clone --branch master https://github.com/jaingit1/machine-learning-model-sample\
+          \ && \npython machine-learning-model-sample/evaluate.py --model {model}\
+          \ --test-data {test_data} &&\nmv metrics.json /tmp/kfp/outputs/metrics\n"
+        image: jaindocker1/python:3.9-git
+    exec-prepare-data:
+      container:
+        command:
+        - sh
+        - -c
+        - "git clone --branch master https://github.com/jaingit1/machine-learning-model-sample\
+          \ && \npython machine-learning-model-sample/dataset_prep.py &&\nmv train.csv\
+          \ /tmp/kfp/outputs/train &&\nmv test.csv /tmp/kfp/outputs/test\n"
+        image: jaindocker1/python:3.9-git
+    exec-train-model:
+      container:
+        command:
+        - sh
+        - -c
+        - "git clone --branch master https://github.com/jaingit1/machine-learning-model-sample\
+          \ && \npython machine-learning-model-sample/train.py --data {train_data}\
+          \ &&\nmv model.pkl /tmp/kfp/outputs/model\n"
+        image: jaindocker1/python:3.9-git
+pipelineInfo:
+  description: Train and evaluate a diabetes prediction model
+  name: diabetes-prediction-pipeline
+root:
+  dag:
+    tasks:
+      evaluate-model:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-evaluate-model
+        dependentTasks:
+        - prepare-data
+        - train-model
+        inputs:
+          parameters:
+            model:
+              taskOutputParameter:
+                outputParameterKey: model
+                producerTask: train-model
+            test_data:
+              taskOutputParameter:
+                outputParameterKey: test
+                producerTask: prepare-data
+        taskInfo:
+          name: evaluate-model
+      prepare-data:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-prepare-data
+        taskInfo:
+          name: prepare-data
+      train-model:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-train-model
+        dependentTasks:
+        - prepare-data
+        inputs:
+          parameters:
+            train_data:
+              taskOutputParameter:
+                outputParameterKey: train
+                producerTask: prepare-data
+        taskInfo:
+          name: train-model
+schemaVersion: 2.1.0
+sdkVersion: kfp-2.11.0
